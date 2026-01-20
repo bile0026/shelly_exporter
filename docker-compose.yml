@@ -10,7 +10,7 @@ services:
     ports:
       - "10037:10037"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config
     environment:
       - CONFIG_PATH=/config/config.yml
     healthcheck:

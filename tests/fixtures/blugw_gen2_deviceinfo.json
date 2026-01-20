@@ -1,0 +1,13 @@
+{
+  "name": "BLU Gateway",
+  "id": "shellyblugw-34987a595024",
+  "mac": "34987A595024",
+  "slot": 0,
+  "model": "SNGW-BT01",
+  "gen": 2,
+  "fw_id": "20241011-114449/1.4.4-g6d2a586",
+  "ver": "1.4.4",
+  "app": "BluGw",
+  "auth_en": false,
+  "auth_domain": null
+}

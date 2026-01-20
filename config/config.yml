@@ -33,6 +33,58 @@ default_credentials:
   username: ""
   password: ""
 
+# =============================================================================
+# Network Discovery / Auto-Discovery Configuration (Optional)
+# =============================================================================
+# When enabled, the exporter will periodically scan specified network ranges
+# for Shelly devices and automatically add them to the polling list.
+discovery:
+  # Enable/disable network discovery
+  enabled: true
+
+  # How often to scan for new devices (seconds)
+  scan_interval_seconds: 300  # 5 minutes
+
+  # Network ranges to scan (CIDR notation or IP ranges)
+  # Examples:
+  #   - "10.0.80.0/24"                    # CIDR notation - scans 10.0.80.1-254
+  #   - "192.168.1.100-192.168.1.200"     # IP range notation
+  #   - "10.0.0.5"                        # Single IP address
+  network_ranges:
+    - "10.0.80.0/24"
+    # - "192.168.1.100-192.168.1.200"
+
+  # Timeout per IP address during scan (seconds)
+  scan_timeout_seconds: 2.0
+
+  # Maximum concurrent scan requests
+  scan_concurrency: 20
+
+  # Automatically add discovered devices to polling targets
+  auto_add_discovered: true
+
+  # Credentials to use for discovered devices
+  # If not specified, uses default_credentials
+  auto_add_credentials:
+    username: ""
+    password: ""
+
+  # IPs to exclude from scanning (e.g., router, gateway, non-Shelly devices)
+  exclude_ips:
+    - "10.0.80.1"    # Router/gateway
+    # - "10.0.80.100"  # Other non-Shelly device
+
+  # Template for auto-generated device names
+  # Available variables: {ip}, {model}, {gen}, {app}, {mac}
+  name_template: "shelly_{mac}_{model}"
+
+  # Path to persist discovered devices (survives container restarts)
+  # If not set, discovered devices are only kept in memory
+  persist_path: /config/discovered.yml
+
+# =============================================================================
+# Target Devices
+# =============================================================================
 # List of Shelly devices to poll
 targets:
   # Shelly Pro 4PM Gen2 - 4 switch channels
@@ -59,18 +111,15 @@ targets:
         index: 3
 
   # Shelly 1PM Gen4 - 1 switch channel with per-target credentials
-  - name: garage_light
-    url: 10.0.80.21
-    credentials:
-      username: admin
-      password: secret123
+  - name: boiler_fan
+    url: 10.0.80.52
     channels:
       - type: switch
         index: 0
 
   # Shelly Plug US Gen2 - 1 switch channel
-  - name: office_fan
-    url: 10.0.80.22
+  - name: foyer_chandelier_east
+    url: 10.0.80.46
     channels:
       - type: switch
         index: 0
@@ -79,7 +128,7 @@ targets:
         ignore_total_returned_active_energy: true  # PlugUS doesn't return energy
 
   # Shelly Dimmer 0/1-10V PM Gen3 - 1 light channel
-  - name: hallway_dimmer
+  - name: entryway_door_light
     url: 10.0.80.35
     poll_interval_seconds: 15  # Dimmers may not need frequent polling
     channels:
@@ -90,6 +139,103 @@ targets:
         ignore_active_power: false
         ignore_total_active_energy: false
         ignore_temperature: true  # This dimmer may not have temp sensor
+
+  - name: north_peak_light
+    url: 10.0.80.24
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: rear_west_exterior_light
+    url: 10.0.80.25
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: stage_box_grand_piano_outlet
+    url: 10.0.80.27
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: worship_stage_outlet
+    url: 10.0.80.29
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: mixer_outlet
+    url: 10.0.80.30
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: wireless_mic_outlet
+    url: 10.0.80.32
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: stage_aux_outlet
+    url: 10.0.80.34
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: entryway_middle_light
+    url: 10.0.80.36
+    discovered: true
+    channels:
+    - type: light
+      index: 0
+  - name: entryway_tv_light
+    url: 10.0.80.37
+    discovered: true
+    channels:
+    - type: light
+      index: 0
+  - name: kitchen_bathroom_north_light
+    url: 10.0.80.42
+    discovered: true
+    channels:
+    - type: light
+      index: 0
+  - name: kitchen_bathroom_south_light
+    url: 10.0.80.43
+    discovered: true
+    channels:
+    - type: light
+      index: 0
+  - name: canopy_lights
+    url: 10.0.80.44
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: zone_valve_gateway
+    url: 10.0.80.45
+    discovered: true
+    channels: []
+  - name: foyer_chandelier_west
+    url: 10.0.80.47
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+  - name: sound_room_gateway
+    url: 10.0.80.48
+    discovered: true
+    channels: []
+  - name: boiler_house_gateway
+    url: 10.0.80.49
+    discovered: true
+    channels: []
+  - name: boiler_light
+    url: 10.0.80.50
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
 
   # Example with legacy target_meters format (backward compatibility)
   # This will be converted to channels with type: switch

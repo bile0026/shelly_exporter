@@ -7,6 +7,7 @@ High-level goals:
 - Docker support: run as a container and expose /metrics.
 - Robust parsing: never crash on missing/extra fields; log and continue.
 - Optional network scanning service to auto-discover Shelly devices on specified network ranges (CIDR or IP ranges).
+- Automatic configuration reload: watch config file for changes and reload without restarting the service.
 
 Dependency management:
 - Use uv (pyproject.toml + uv.lock). Provide commands to create venv, sync deps, run, and run tests.
@@ -118,7 +119,7 @@ discovery:
     - "10.0.80.1"                      # gateway/router
     - "10.0.80.100"                    # other non-Shelly devices
   name_template: "shelly_{ip}_{model}" # template for auto-generated device names
-                                        # Available variables: {ip}, {model}, {gen}, {app}, {mac}
+                                        # Available variables: {ip}, {model}, {gen}, {app}, {mac}, {id}
 targets:
   - name: parking_lot_light_power
     url: 10.0.80.22
@@ -159,6 +160,28 @@ Polling / scheduling:
 - Keep metrics updates separate from HTTP serving.
 - Add exponential backoff on repeated failures per target (with sane defaults; configurable if you add config keys—document defaults clearly).
 
+Configuration reloading:
+- Implement automatic config file watching and reloading:
+  - Watch the config file (specified by CONFIG_PATH env var or --config CLI arg) for changes.
+  - Use platform-appropriate file watching (watchdog library or asyncio file monitoring).
+  - On config file change:
+    - Reload and validate the new configuration.
+    - If validation fails: log error, keep using old config, continue running.
+    - If validation succeeds:
+      - Update global settings (log_level, poll_interval_seconds, etc.) immediately.
+      - Add new targets to the polling queue.
+      - Remove targets that are no longer in config (stop polling, but keep metrics for a grace period).
+      - Update existing targets with new settings (poll intervals, credentials, channels).
+      - Re-select drivers for targets if device info needs refresh (e.g., if model changed).
+    - Log config reload events at INFO level.
+  - Handle edge cases gracefully:
+    - Config file temporarily deleted/moved: keep using last valid config, log warning.
+    - Config file write in progress: debounce rapid changes (wait ~1 second after last change before reloading).
+    - Invalid YAML syntax: log error with line number, keep old config.
+    - Missing required fields: log validation errors, keep old config.
+  - Metrics should not be lost during reload (maintain continuity).
+  - No downtime during reload (hot reload).
+
 Network scanning / auto-discovery:
 - Implement a NetworkScanner service (scanner.py):
   - Parse CIDR notation (e.g., "10.0.80.0/24") and IP ranges (e.g., "192.168.1.100-192.168.1.200").
@@ -170,7 +193,7 @@ Network scanning / auto-discovery:
     - Use scan_timeout_seconds for each probe
     - Respect scan_concurrency limit (use asyncio.Semaphore)
   - For discovered Shelly devices:
-    - Extract device info (model, gen, app, MAC address)
+    - Extract device info (model, gen, app, MAC address, ID)
     - Generate device name using name_template
     - If auto_add_discovered=true:
       - Create target configuration automatically
@@ -196,6 +219,11 @@ Prometheus metrics:
   shelly_last_poll_timestamp_seconds{device}
   shelly_poll_duration_seconds{device}
   shelly_poll_errors_total{device} (counter)
+- Configuration metrics:
+  shelly_config_reloads_total (counter) - total number of successful config reloads
+  shelly_config_reload_errors_total (counter) - total number of failed config reload attempts
+  shelly_config_last_reload_timestamp_seconds (gauge) - timestamp of last successful config reload
+  shelly_config_last_reload_status (gauge, 1=success, 0=failure) - status of last reload attempt
 - Discovery/scanning metrics:
   shelly_discovery_scans_total (counter) - total number of network scans performed
   shelly_discovery_devices_found_total (counter) - total devices discovered across all scans
@@ -225,6 +253,11 @@ Implementation details:
 - Use PyYAML (or ruamel.yaml) for YAML parsing.
 - Use standard logging with timestamps.
 - Use ipaddress module for CIDR parsing and IP range generation.
+- Use watchdog library (or platform-native file watching) for config file monitoring:
+  - Watchdog provides cross-platform file system events.
+  - Use async file watcher integration (e.g., aiofiles with watchdog or asyncio-compatible wrapper).
+  - Monitor config file for MODIFY and CREATE events.
+  - Debounce rapid file changes (e.g., wait 1 second after last event before reloading).
 - Provide normalized data models:
   - DeviceReading for per-device fields (up, duration, etc.)
   - ChannelReading(channel_type, channel_index, output, brightness, apower_w, voltage_v, freq_hz, current_a, pf, temp_c, aenergy_wh, ret_aenergy_wh)
@@ -247,6 +280,7 @@ Project structure (must create all files):
     - registry.py             # driver registry/discovery
   - shelly_client.py          # RPC client + device info/status methods
   - scanner.py                # network scanning service for auto-discovery
+  - config_watcher.py         # config file watching and reloading service
   - metrics.py
   - poller.py
   - web.py
@@ -261,6 +295,7 @@ Project structure (must create all files):
   - discovery configuration example (commented out, showing how to enable auto-discovery)
 - tests/:
   - test_config_load.py
+  - test_config_reload.py            # tests for config file watching and reloading
   - test_driver_selection.py
   - test_pro4pm_parsing.py
   - test_s1pm_parsing.py

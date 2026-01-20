@@ -65,3 +65,39 @@ def dimmer_deviceinfo() -> dict[str, Any]:
 def dimmer_status() -> dict[str, Any]:
     """Dimmer Gen3 status fixture."""
     return load_fixture("dimmer_g3_status.json")
+
+
+@pytest.fixture
+def pluswalldimmer_deviceinfo() -> dict[str, Any]:
+    """Plus Wall Dimmer Gen2 device info fixture."""
+    return load_fixture("pluswalldimmer_gen2_deviceinfo.json")
+
+
+@pytest.fixture
+def pluswalldimmer_status() -> dict[str, Any]:
+    """Plus Wall Dimmer Gen2 status fixture."""
+    return load_fixture("pluswalldimmer_gen2_status.json")
+
+
+@pytest.fixture
+def blugw_gen2_deviceinfo() -> dict[str, Any]:
+    """BLU Gateway Gen2 device info fixture."""
+    return load_fixture("blugw_gen2_deviceinfo.json")
+
+
+@pytest.fixture
+def blugw_gen2_status() -> dict[str, Any]:
+    """BLU Gateway Gen2 status fixture."""
+    return load_fixture("blugw_gen2_status.json")
+
+
+@pytest.fixture
+def blugw_gen3_deviceinfo() -> dict[str, Any]:
+    """BLU Gateway Gen3 device info fixture."""
+    return load_fixture("blugw_gen3_deviceinfo.json")
+
+
+@pytest.fixture
+def blugw_gen3_status() -> dict[str, Any]:
+    """BLU Gateway Gen3 status fixture."""
+    return load_fixture("blugw_gen3_status.json")

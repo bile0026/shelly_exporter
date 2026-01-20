@@ -10,6 +10,7 @@ A production-ready Prometheus exporter for Shelly devices with a modular plugin/
 - Support for Gen2, Gen3, and Gen4 Shelly devices
 - Switch and light channel support
 - Automatic driver selection based on device info
+- Network auto-discovery of Shelly devices (CIDR/IP ranges)
 - Exponential backoff on failures
 - Docker support
 
@@ -136,6 +137,44 @@ channels:
     ignore_total_active_energy: false
 ```
 
+### Network Auto-Discovery
+
+The exporter can automatically discover Shelly devices on your network. When enabled, it periodically scans specified network ranges and adds discovered devices to the polling list.
+
+```yaml
+discovery:
+  enabled: true
+  scan_interval_seconds: 3600          # Scan every hour
+  network_ranges:
+    - "10.0.80.0/24"                   # CIDR notation
+    - "192.168.1.100-192.168.1.200"   # IP range notation
+  scan_timeout_seconds: 2.0
+  scan_concurrency: 20
+  auto_add_discovered: true
+  auto_add_credentials:
+    username: ""
+    password: ""
+  exclude_ips:
+    - "10.0.80.1"                      # Gateway
+  name_template: "shelly_{ip}_{model}"
+  persist_path: /config/discovered.yml # Persist across restarts
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | false | Enable/disable network discovery |
+| `scan_interval_seconds` | 3600 | How often to scan for new devices |
+| `network_ranges` | [] | CIDR blocks or IP ranges to scan |
+| `scan_timeout_seconds` | 2.0 | Timeout per IP during scan |
+| `scan_concurrency` | 20 | Max concurrent scan requests |
+| `auto_add_discovered` | true | Automatically add found devices |
+| `auto_add_credentials` | null | Credentials for discovered devices |
+| `exclude_ips` | [] | IPs to exclude from scanning |
+| `name_template` | "shelly_{ip}_{model}" | Template for device names |
+| `persist_path` | null | Path to save discovered devices (survives restarts) |
+
+Name template variables: `{ip}`, `{model}`, `{gen}`, `{app}`, `{mac}`
+
 ## Prometheus Metrics
 
 ### Per-Device Metrics
@@ -205,6 +244,17 @@ channels:
 | `shelly_light_voltage_volts` | device, channel | Voltage (V) |
 | `shelly_light_current_amps` | device, channel | Current (A) |
 | `shelly_light_temperature_c` | device, channel | Temperature (C) |
+
+### Discovery Metrics
+
+| Metric | Labels | Description |
+|--------|--------|-------------|
+| `shelly_discovery_scans_total` | - | Total network scans performed (counter) |
+| `shelly_discovery_devices_found_total` | - | Total devices discovered (counter) |
+| `shelly_discovery_scan_duration_seconds` | - | Duration of last scan |
+| `shelly_discovery_last_scan_timestamp_seconds` | - | Timestamp of last scan |
+| `shelly_discovery_scan_errors_total` | - | Total scan errors (counter) |
+| `shelly_discovered_device_info` | ip, model, gen, app, mac, discovered_at | Info about discovered devices (value=1) |
 
 ## Running Tests
 

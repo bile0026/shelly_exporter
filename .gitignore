@@ -1,6 +1,7 @@
 .vscode
 .venv
 .claude
+config/discovered.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

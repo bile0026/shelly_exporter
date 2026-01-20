@@ -1,0 +1,50 @@
+{
+  "ble": {},
+  "blugw": {},
+  "cloud": {
+    "connected": true
+  },
+  "mqtt": {
+    "connected": true
+  },
+  "script:1": {
+    "id": 1,
+    "running": true,
+    "mem_used": 560,
+    "mem_peak": 5110,
+    "mem_free": 24626,
+    "cpu": 10
+  },
+  "script:2": {
+    "id": 2,
+    "running": false,
+    "mem_free": 24626,
+    "cpu": 0
+  },
+  "sys": {
+    "mac": "34987A595024",
+    "restart_required": false,
+    "time": "21:19",
+    "unixtime": 1768879188,
+    "uptime": 8061490,
+    "ram_size": 266864,
+    "ram_free": 118572,
+    "ram_min_free": 83180,
+    "fs_size": 393216,
+    "fs_free": 135168,
+    "cfg_rev": 23,
+    "kvs_rev": 0,
+    "schedule_rev": 0,
+    "webhook_rev": 0,
+    "available_updates": {}
+  },
+  "wifi": {
+    "sta_ip": "10.0.80.48",
+    "status": "got ip",
+    "ssid": "HomeNetwork",
+    "rssi": -36
+  },
+  "ws": {
+    "connected": false
+  }
+}

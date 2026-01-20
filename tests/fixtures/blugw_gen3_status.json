@@ -1,0 +1,37 @@
+{
+  "ble": {},
+  "blugw": {},
+  "bthome": {},
+  "cloud": {
+    "connected": true
+  },
+  "mqtt": {
+    "connected": false
+  },
+  "sys": {
+    "mac": "E4B32315D060",
+    "restart_required": false,
+    "time": "23:19",
+    "unixtime": 1768879196,
+    "uptime": 1396815,
+    "ram_size": 268884,
+    "ram_free": 107572,
+    "ram_min_free": 90916,
+    "fs_size": 1048720,
+    "fs_free": 880640,
+    "cfg_rev": 14,
+    "kvs_rev": 0,
+    "schedule_rev": 0,
+    "webhook_rev": 0,
+    "available_updates": {}
+  },
+  "wifi": {
+    "sta_ip": "10.0.80.45",
+    "status": "got ip",
+    "ssid": "HomeNetwork",
+    "rssi": -47
+  },
+  "ws": {
+    "connected": false
+  }
+}

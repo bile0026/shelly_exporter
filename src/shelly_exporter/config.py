@@ -64,6 +64,7 @@ class TargetConfig(BaseModel):
     poll_interval_seconds: int | None = None
     credentials: Credentials | None = None
     channels: list[ChannelConfig] = Field(default_factory=list)
+    discovered: bool = False  # True if this target was auto-discovered
 
     @model_validator(mode="before")
     @classmethod
@@ -86,6 +87,21 @@ class TargetConfig(BaseModel):
         return data
 
 
+class DiscoveryConfig(BaseModel):
+    """Configuration for network scanning and auto-discovery."""
+
+    enabled: bool = False
+    scan_interval_seconds: int = 3600  # 1 hour
+    network_ranges: list[str] = Field(default_factory=list)
+    scan_timeout_seconds: float = 2.0
+    scan_concurrency: int = 20
+    auto_add_discovered: bool = True
+    auto_add_credentials: Credentials | None = None
+    exclude_ips: list[str] = Field(default_factory=list)
+    name_template: str = "shelly_{ip}_{model}"
+    persist_path: str | None = None  # Path to save discovered devices (e.g., /config/discovered.yml)
+
+
 class Config(BaseModel):
     """Main application configuration."""
 
@@ -97,6 +113,7 @@ class Config(BaseModel):
     max_concurrency: int = 50
     default_credentials: Credentials = Field(default_factory=Credentials)
     targets: list[TargetConfig] = Field(default_factory=list)
+    discovery: DiscoveryConfig = Field(default_factory=DiscoveryConfig)
 
     # Device info refresh interval (seconds) - how often to re-fetch device info
     device_info_refresh_seconds: int = 21600  # 6 hours
@@ -117,6 +134,15 @@ class Config(BaseModel):
     def get_target_poll_interval(self, target: TargetConfig) -> int:
         """Get effective poll interval for a target."""
         return target.poll_interval_seconds or self.poll_interval_seconds
+
+    def get_discovery_credentials(self) -> Credentials | None:
+        """Get credentials to use for discovered devices."""
+        if self.discovery.auto_add_credentials:
+            if self.discovery.auto_add_credentials.has_credentials():
+                return self.discovery.auto_add_credentials
+        if self.default_credentials.has_credentials():
+            return self.default_credentials
+        return None
 
 
 def load_config(config_path: str | Path | None = None) -> Config:

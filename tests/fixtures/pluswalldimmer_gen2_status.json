@@ -1,0 +1,41 @@
+{
+  "ble": {},
+  "cloud": {
+    "connected": true
+  },
+  "light:0": {
+    "id": 0,
+    "source": "WS_in",
+    "output": false,
+    "brightness": 100
+  },
+  "mqtt": {
+    "connected": false
+  },
+  "sys": {
+    "mac": "3C8A1FEC1C88",
+    "restart_required": false,
+    "time": "21:18",
+    "unixtime": 1768879080,
+    "uptime": 5052346,
+    "ram_size": 252248,
+    "ram_free": 138672,
+    "ram_min_free": 117556,
+    "fs_size": 393216,
+    "fs_free": 139264,
+    "cfg_rev": 7,
+    "kvs_rev": 0,
+    "schedule_rev": 0,
+    "webhook_rev": 0,
+    "available_updates": {}
+  },
+  "wifi": {
+    "sta_ip": "10.0.80.42",
+    "status": "got ip",
+    "ssid": "HomeNetwork",
+    "rssi": -56
+  },
+  "ws": {
+    "connected": false
+  }
+}
