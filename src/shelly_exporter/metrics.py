@@ -195,6 +195,63 @@ shelly_switch_ret_aenergy = Gauge(
 )
 
 # =============================================================================
+# Discovery/scanning metrics
+# =============================================================================
+shelly_discovery_scans_total = Counter(
+    "shelly_discovery_scans_total",
+    "Total number of network scans performed",
+)
+
+shelly_discovery_devices_found_total = Counter(
+    "shelly_discovery_devices_found_total",
+    "Total devices discovered across all scans",
+)
+
+shelly_discovery_scan_duration = Gauge(
+    "shelly_discovery_scan_duration_seconds",
+    "Duration of last scan in seconds",
+)
+
+shelly_discovery_last_scan_timestamp = Gauge(
+    "shelly_discovery_last_scan_timestamp_seconds",
+    "Unix timestamp of last scan",
+)
+
+shelly_discovery_scan_errors = Counter(
+    "shelly_discovery_scan_errors_total",
+    "Total scan errors",
+)
+
+shelly_discovered_device_info = Gauge(
+    "shelly_discovered_device_info",
+    "Info about discovered devices (value=1)",
+    ["ip", "model", "gen", "app", "mac", "discovered_at"],
+)
+
+# =============================================================================
+# Configuration reload metrics
+# =============================================================================
+shelly_config_reloads_total = Counter(
+    "shelly_config_reloads_total",
+    "Total number of successful config reloads",
+)
+
+shelly_config_reload_errors_total = Counter(
+    "shelly_config_reload_errors_total",
+    "Total number of failed config reload attempts",
+)
+
+shelly_config_last_reload_timestamp = Gauge(
+    "shelly_config_last_reload_timestamp_seconds",
+    "Unix timestamp of last successful config reload",
+)
+
+shelly_config_last_reload_status = Gauge(
+    "shelly_config_last_reload_status",
+    "Status of last reload attempt (1=success, 0=failure)",
+)
+
+# =============================================================================
 # Light channel metrics
 # =============================================================================
 shelly_light_output = Gauge(
@@ -456,3 +513,58 @@ def update_metrics_from_reading(
             channel_reading,
             channel_config,
         )
+
+
+# =============================================================================
+# Discovery metrics update functions
+# =============================================================================
+def update_discovery_scan_started() -> None:
+    """Record that a discovery scan has started."""
+    shelly_discovery_scans_total.inc()
+
+
+def update_discovery_scan_completed(duration_seconds: float) -> None:
+    """Record completion of a discovery scan."""
+    shelly_discovery_scan_duration.set(duration_seconds)
+    shelly_discovery_last_scan_timestamp.set(time.time())
+
+
+def update_discovery_device_found(
+    ip: str,
+    model: str,
+    gen: int,
+    app: str,
+    mac: str,
+    discovered_at: str,
+) -> None:
+    """Record a discovered device."""
+    shelly_discovery_devices_found_total.inc()
+    shelly_discovered_device_info.labels(
+        ip=ip,
+        model=model,
+        gen=str(gen),
+        app=app,
+        mac=mac,
+        discovered_at=discovered_at,
+    ).set(1)
+
+
+def update_discovery_scan_error() -> None:
+    """Record a scan error."""
+    shelly_discovery_scan_errors.inc()
+
+
+# =============================================================================
+# Config reload metrics update functions
+# =============================================================================
+def update_config_reload_success() -> None:
+    """Record a successful config reload."""
+    shelly_config_reloads_total.inc()
+    shelly_config_last_reload_timestamp.set(time.time())
+    shelly_config_last_reload_status.set(1)
+
+
+def update_config_reload_error() -> None:
+    """Record a failed config reload attempt."""
+    shelly_config_reload_errors_total.inc()
+    shelly_config_last_reload_status.set(0)

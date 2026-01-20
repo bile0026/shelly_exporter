@@ -286,3 +286,101 @@ class DevicePoller:
         """
         interval = self.config.get_target_poll_interval(state.target)
         state.next_poll_time = time.time() + interval
+
+    async def add_target(self, target: TargetConfig) -> None:
+        """Add a new target to the poller dynamically.
+
+        Args:
+            target: Target configuration to add
+        """
+        if target.name in self._states:
+            logger.warning(f"Target '{target.name}' already exists, skipping")
+            return
+
+        self._states[target.name] = TargetState(target=target)
+        self.config.targets.append(target)
+        logger.info(f"Added new target '{target.name}' to poller")
+
+    def has_target(self, name: str) -> bool:
+        """Check if a target exists by name.
+
+        Args:
+            name: Target name to check
+
+        Returns:
+            True if target exists
+        """
+        return name in self._states
+
+    def has_target_url(self, url: str) -> bool:
+        """Check if a target exists by URL.
+
+        Args:
+            url: Target URL to check
+
+        Returns:
+            True if target with URL exists
+        """
+        for state in self._states.values():
+            if state.target.url == url:
+                return True
+        return False
+
+    async def remove_target(self, name: str) -> bool:
+        """Remove a target from the poller.
+
+        Args:
+            name: Target name to remove
+
+        Returns:
+            True if target was removed, False if not found
+        """
+        if name not in self._states:
+            return False
+
+        del self._states[name]
+        # Also remove from config.targets list
+        self.config.targets = [t for t in self.config.targets if t.name != name]
+        logger.info(f"Removed target '{name}' from poller")
+        return True
+
+    async def update_config(self, new_config: Config) -> None:
+        """Update poller with new configuration.
+
+        Handles adding new targets, removing old targets, and updating settings.
+
+        Args:
+            new_config: New configuration to apply
+        """
+        old_target_names = set(self._states.keys())
+        new_target_names = {t.name for t in new_config.targets}
+
+        # Find targets to add and remove
+        to_add = new_target_names - old_target_names
+        to_remove = old_target_names - new_target_names
+
+        # Remove old targets
+        for name in to_remove:
+            await self.remove_target(name)
+
+        # Update the config reference
+        self.config = new_config
+
+        # Add new targets
+        for target in new_config.targets:
+            if target.name in to_add:
+                self._states[target.name] = TargetState(target=target)
+                logger.info(f"Added new target '{target.name}' from config reload")
+
+        # Update existing targets with new config values
+        for name in old_target_names & new_target_names:
+            # Find the updated target config
+            for target in new_config.targets:
+                if target.name == name:
+                    self._states[name].target = target
+                    break
+
+        logger.info(
+            f"Config update complete: added {len(to_add)}, removed {len(to_remove)}, "
+            f"total targets: {len(self._states)}"
+        )

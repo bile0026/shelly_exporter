@@ -1,0 +1,26 @@
+# Prometheus configuration for development/testing
+
+global:
+  scrape_interval: 15s      # How frequently to scrape targets
+  evaluation_interval: 15s  # How frequently to evaluate rules
+  external_labels:
+    cluster: 'shelly-exporter-dev'
+    environment: 'development'
+
+# Scrape configurations
+scrape_configs:
+  # Scrape the Shelly Exporter
+  - job_name: 'shelly-exporter'
+    static_configs:
+      - targets: ['shelly-exporter:10037']
+        labels:
+          job: 'shelly-exporter'
+          instance: 'shelly-exporter'
+
+  # Scrape Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          job: 'prometheus'
+          instance: 'prometheus'

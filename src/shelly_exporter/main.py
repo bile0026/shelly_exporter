@@ -10,8 +10,11 @@ import sys
 from pathlib import Path
 
 from shelly_exporter import __version__
-from shelly_exporter.config import load_config
+from shelly_exporter.config import Config, TargetConfig, load_config
+from shelly_exporter.config_watcher import ConfigWatcher
+from shelly_exporter.drivers.registry import get_registry
 from shelly_exporter.poller import DevicePoller
+from shelly_exporter.scanner import NetworkScanner
 from shelly_exporter.web import run_server
 
 
@@ -48,6 +51,12 @@ def parse_args() -> argparse.Namespace:
 
 async def async_main(config_path: Path | None) -> None:
     """Async main function."""
+    # Resolve config path
+    if config_path is None:
+        import os
+
+        config_path = Path(os.environ.get("CONFIG_PATH", "/config/config.yml"))
+
     # Load configuration
     try:
         config = load_config(config_path)
@@ -68,6 +77,40 @@ async def async_main(config_path: Path | None) -> None:
     # Create poller
     poller = DevicePoller(config)
 
+    # Create config reload callback
+    async def on_config_reload(new_config: Config) -> None:
+        logger.info("Applying new configuration...")
+        await poller.update_config(new_config)
+
+        # Update scanner config if discovery is enabled
+        if scanner is not None:
+            scanner.config = new_config
+            scanner._configured_urls = scanner._get_configured_urls()
+            logger.info("Updated scanner with new configuration")
+
+    # Create config watcher for hot-reload
+    config_watcher = ConfigWatcher(
+        config_path=config_path,
+        on_reload=on_config_reload,
+        debounce_seconds=1.0,
+    )
+
+    # Create discovery callback that adds targets to poller
+    async def on_device_discovered(target: TargetConfig) -> None:
+        if not poller.has_target_url(target.url):
+            await poller.add_target(target)
+
+    # Create network scanner (if discovery enabled)
+    scanner: NetworkScanner | None = None
+    if config.discovery.enabled:
+        driver_registry = get_registry()
+        scanner = NetworkScanner(
+            config=config,
+            driver_registry=driver_registry,
+            on_device_discovered=on_device_discovered,
+        )
+        logger.info("Network discovery is enabled")
+
     # Create shutdown event
     shutdown_event = asyncio.Event()
 
@@ -83,8 +126,18 @@ async def async_main(config_path: Path | None) -> None:
     # Start HTTP server
     runner = await run_server(config.listen_host, config.listen_port)
 
+    # Start config watcher
+    await config_watcher.start()
+    logger.info(f"Watching config file for changes: {config_path}")
+
     # Start poller in background
     poller_task = asyncio.create_task(poller.start())
+
+    # Start scanner in background (if enabled)
+    scanner_task: asyncio.Task[None] | None = None
+    if scanner:
+        await scanner.start()
+        # Scanner runs its own background task, but we need to track it for cleanup
 
     try:
         # Wait for shutdown signal
@@ -92,6 +145,14 @@ async def async_main(config_path: Path | None) -> None:
     finally:
         # Cleanup
         logger.info("Shutting down...")
+
+        # Stop config watcher
+        await config_watcher.stop()
+
+        # Stop scanner first
+        if scanner:
+            await scanner.stop()
+
         await poller.stop()
         poller_task.cancel()
         try:

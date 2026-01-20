@@ -1,0 +1,13 @@
+{
+  "name": "BLU Gateway G3",
+  "id": "shellyblugwg3-e4b32315d060",
+  "mac": "E4B32315D060",
+  "slot": 0,
+  "model": "S3GW-1DBT001",
+  "gen": 3,
+  "fw_id": "20241011-114449/1.4.4-g6d2a586",
+  "ver": "1.4.4",
+  "app": "BluGwG3",
+  "auth_en": false,
+  "auth_domain": null
+}

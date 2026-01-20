@@ -6,8 +6,11 @@ import logging
 from typing import Any
 
 from shelly_exporter.drivers.base import DeviceDriver
+from shelly_exporter.drivers.blugw_gen2 import BluGwGen2Driver
+from shelly_exporter.drivers.blugw_gen3 import BluGwGen3Driver
 from shelly_exporter.drivers.dimmer_0110vpm_g3 import Dimmer0110VPMG3Driver
 from shelly_exporter.drivers.plugus_gen2 import PlugUSGen2Driver
+from shelly_exporter.drivers.pluswalldimmer_gen2 import PlusWallDimmerGen2Driver
 from shelly_exporter.drivers.pro4pm_gen2 import Pro4PMGen2Driver
 from shelly_exporter.drivers.s1pm_gen4 import Shelly1PMGen4Driver
 
@@ -81,5 +84,8 @@ def get_registry() -> DriverRegistry:
         _registry.register(Shelly1PMGen4Driver())
         _registry.register(PlugUSGen2Driver())
         _registry.register(Dimmer0110VPMG3Driver())
+        _registry.register(PlusWallDimmerGen2Driver())
+        _registry.register(BluGwGen2Driver())
+        _registry.register(BluGwGen3Driver())
         logger.info(f"Initialized driver registry with {len(_registry._drivers)} drivers")
     return _registry
