@@ -1,0 +1,51 @@
+{
+  "ble": {},
+  "cloud": {
+    "connected": true
+  },
+  "mqtt": {
+    "connected": false
+  },
+  "switch:0": {
+    "id": 0,
+    "source": "timer",
+    "output": true,
+    "apower": 45.2,
+    "voltage": 119.5,
+    "current": 0.38,
+    "aenergy": {
+      "total": 3456.78,
+      "by_minute": [0.75, 0.75, 0.75],
+      "minute_ts": 1704240000
+    },
+    "temperature": {
+      "tC": 35.5,
+      "tF": 95.9
+    }
+  },
+  "sys": {
+    "mac": "C4D8D5789012",
+    "restart_required": false,
+    "time": "08:00",
+    "unixtime": 1704240000,
+    "uptime": 43200,
+    "ram_size": 245760,
+    "ram_free": 140000,
+    "fs_size": 524288,
+    "fs_free": 250000,
+    "cfg_rev": 3,
+    "kvs_rev": 1,
+    "schedule_rev": 1,
+    "webhook_rev": 0,
+    "available_updates": {}
+  },
+  "wifi": {
+    "sta_ip": "10.0.80.22",
+    "status": "got ip",
+    "ssid": "HomeNetwork",
+    "rssi": -45
+  },
+  "ws": {
+    "connected": false
+  }
+}

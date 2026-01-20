@@ -1,0 +1,13 @@
+{
+  "name": "Office Fan",
+  "id": "shellyplugus-c4d8d5789012",
+  "mac": "C4D8D5789012",
+  "slot": 1,
+  "model": "SNPL-00116US",
+  "gen": 2,
+  "fw_id": "20240115-090000/v1.2.0-g2222222",
+  "ver": "1.2.0",
+  "app": "PlugUS",
+  "auth_en": false,
+  "auth_domain": null
+}

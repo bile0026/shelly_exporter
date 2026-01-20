@@ -1,0 +1,14 @@
+{
+  "name": "Garage Light",
+  "id": "shelly1pmg4-b8d61a123456",
+  "mac": "B8D61A123456",
+  "slot": 1,
+  "model": "S4SW-001P16EU",
+  "gen": 4,
+  "fw_id": "20240201-100000/v1.0.0-g0000001",
+  "ver": "1.0.0",
+  "app": "S1PMG4",
+  "auth_en": true,
+  "auth_domain": "shelly1pmg4-b8d61a123456",
+  "matter": true
+}

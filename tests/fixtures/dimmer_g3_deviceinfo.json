@@ -1,0 +1,13 @@
+{
+  "name": "Hallway Dimmer",
+  "id": "shellydimmer0110vpmg3-e8db84456789",
+  "mac": "E8DB84456789",
+  "slot": 1,
+  "model": "S3DM-0010WW",
+  "gen": 3,
+  "fw_id": "20240120-080000/v1.1.0-g3333333",
+  "ver": "1.1.0",
+  "app": "Dimmer0110VPMG3",
+  "auth_en": false,
+  "auth_domain": null
+}

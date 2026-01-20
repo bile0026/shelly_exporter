@@ -1,0 +1,100 @@
+# Shelly Exporter Configuration Example
+# This file demonstrates all configuration options
+
+# Logging level: DEBUG, INFO, WARNING, ERROR
+log_level: INFO
+
+# HTTP server settings
+listen_host: 0.0.0.0
+listen_port: 10037
+
+# Global polling interval (seconds)
+# Can be overridden per-target
+poll_interval_seconds: 10
+
+# HTTP request timeout for device communication (seconds)
+request_timeout_seconds: 3
+
+# Maximum concurrent device polls
+max_concurrency: 50
+
+# Device info refresh interval (seconds)
+# Determines how often to re-fetch device info to detect changes
+device_info_refresh_seconds: 21600  # 6 hours
+
+# Backoff settings for failed polls
+backoff_base_seconds: 30.0
+backoff_max_seconds: 300.0  # 5 minutes
+backoff_multiplier: 2.0
+
+# Default credentials for devices (optional)
+# Can be overridden per-target
+default_credentials:
+  username: ""
+  password: ""
+
+# List of Shelly devices to poll
+targets:
+  # Shelly Pro 4PM Gen2 - 4 switch channels
+  - name: workshop_power
+    url: 10.0.80.20
+    poll_interval_seconds: 5  # Override global interval
+    channels:
+      - type: switch
+        index: 0
+        ignore_voltage: false
+        ignore_current: false
+        ignore_active_power: false
+        ignore_power_factor: false
+        ignore_frequency: false
+        ignore_total_active_energy: false
+        ignore_total_returned_active_energy: false
+        ignore_temperature: false
+        ignore_output: false
+      - type: switch
+        index: 1
+      - type: switch
+        index: 2
+      - type: switch
+        index: 3
+
+  # Shelly 1PM Gen4 - 1 switch channel with per-target credentials
+  - name: garage_light
+    url: 10.0.80.21
+    credentials:
+      username: admin
+      password: secret123
+    channels:
+      - type: switch
+        index: 0
+
+  # Shelly Plug US Gen2 - 1 switch channel
+  - name: office_fan
+    url: 10.0.80.22
+    channels:
+      - type: switch
+        index: 0
+        ignore_power_factor: true      # PlugUS doesn't report pf
+        ignore_frequency: true          # PlugUS doesn't report freq
+        ignore_total_returned_active_energy: true  # PlugUS doesn't return energy
+
+  # Shelly Dimmer 0/1-10V PM Gen3 - 1 light channel
+  - name: hallway_dimmer
+    url: 10.0.80.35
+    poll_interval_seconds: 15  # Dimmers may not need frequent polling
+    channels:
+      - type: light
+        index: 0
+        ignore_output: false
+        ignore_brightness: false
+        ignore_active_power: false
+        ignore_total_active_energy: false
+        ignore_temperature: true  # This dimmer may not have temp sensor
+
+  # Example with legacy target_meters format (backward compatibility)
+  # This will be converted to channels with type: switch
+  # - name: legacy_device
+  #   url: 10.0.80.99
+  #   target_meters:
+  #     - 0
+  #     - 1
