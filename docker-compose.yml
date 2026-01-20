@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  shelly-exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shelly-exporter
+    restart: unless-stopped
+    ports:
+      - "10037:10037"
+    volumes:
+      - ./config:/config:ro
+    environment:
+      - CONFIG_PATH=/config/config.yml
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:10037/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Optional: Connect to your network where Shelly devices are accessible
+    # networks:
+    #   - shelly_network
+    # Optional: DNS configuration for device name resolution
+    # dns:
+    #   - 10.0.0.1
+
+# Optional: Define custom network
+# networks:
+#   shelly_network:
+#     external: true
