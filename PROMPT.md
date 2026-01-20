@@ -6,6 +6,7 @@ High-level goals:
 - Default credentials at the top-level (applies to all targets unless overridden per target).
 - Docker support: run as a container and expose /metrics.
 - Robust parsing: never crash on missing/extra fields; log and continue.
+- Optional network scanning service to auto-discover Shelly devices on specified network ranges (CIDR or IP ranges).
 
 Dependency management:
 - Use uv (pyproject.toml + uv.lock). Provide commands to create venv, sync deps, run, and run tests.
@@ -100,6 +101,24 @@ max_concurrency: 50
 default_credentials:
   username: ""
   password: ""
+# Optional network scanning/discovery:
+discovery:
+  enabled: false                       # set to true to enable auto-discovery
+  scan_interval_seconds: 3600          # how often to scan for new devices (default: 1 hour)
+  network_ranges:                      # list of CIDR blocks or IP ranges to scan
+    - "10.0.80.0/24"                   # CIDR notation
+    - "192.168.1.100-192.168.1.200"   # IP range notation
+  scan_timeout_seconds: 2              # timeout per IP address during scan
+  scan_concurrency: 20                 # max concurrent scan requests
+  auto_add_discovered: true            # automatically add discovered devices to targets
+  auto_add_credentials:                # credentials to use for discovered devices (if auto_add_discovered=true)
+    username: ""                       # defaults to default_credentials if not specified
+    password: ""
+  exclude_ips:                         # IPs to exclude from scanning (optional)
+    - "10.0.80.1"                      # gateway/router
+    - "10.0.80.100"                    # other non-Shelly devices
+  name_template: "shelly_{ip}_{model}" # template for auto-generated device names
+                                        # Available variables: {ip}, {model}, {gen}, {app}, {mac}
 targets:
   - name: parking_lot_light_power
     url: 10.0.80.22
@@ -140,6 +159,36 @@ Polling / scheduling:
 - Keep metrics updates separate from HTTP serving.
 - Add exponential backoff on repeated failures per target (with sane defaults; configurable if you add config keys—document defaults clearly).
 
+Network scanning / auto-discovery:
+- Implement a NetworkScanner service (scanner.py):
+  - Parse CIDR notation (e.g., "10.0.80.0/24") and IP ranges (e.g., "192.168.1.100-192.168.1.200").
+  - Generate list of IP addresses to scan from configured ranges.
+  - Exclude IPs listed in exclude_ips configuration.
+  - Concurrently probe each IP address:
+    - Attempt HTTP connection to http://{ip}/rpc
+    - Call Shelly.GetDeviceInfo to identify if device is a Shelly
+    - Use scan_timeout_seconds for each probe
+    - Respect scan_concurrency limit (use asyncio.Semaphore)
+  - For discovered Shelly devices:
+    - Extract device info (model, gen, app, MAC address)
+    - Generate device name using name_template
+    - If auto_add_discovered=true:
+      - Create target configuration automatically
+      - Use auto_add_credentials (or default_credentials if not specified)
+      - Auto-detect supported channels using driver.supported_channels()
+      - Add all supported channels to the target config
+      - Log discovery event
+    - Update discovery metrics
+  - Run scans periodically based on scan_interval_seconds (only if discovery.enabled=true)
+  - Integrate with poller: discovered devices should be added to the polling queue
+  - Handle errors gracefully: network timeouts, non-Shelly devices, auth failures
+  - Log discovery activity at INFO level (device found) and DEBUG level (scan progress)
+- Discovery should run in parallel with polling (separate async task)
+- When a device is discovered and auto-added:
+  - It should immediately start being polled (no restart required)
+  - Use in-memory target registry that can be updated dynamically
+  - Optionally persist discovered devices to a file for persistence across restarts (optional feature)
+
 Prometheus metrics:
 - Use prometheus_client.
 - Common per-device metrics:
@@ -147,6 +196,13 @@ Prometheus metrics:
   shelly_last_poll_timestamp_seconds{device}
   shelly_poll_duration_seconds{device}
   shelly_poll_errors_total{device} (counter)
+- Discovery/scanning metrics:
+  shelly_discovery_scans_total (counter) - total number of network scans performed
+  shelly_discovery_devices_found_total (counter) - total devices discovered across all scans
+  shelly_discovery_scan_duration_seconds (gauge) - duration of last scan in seconds
+  shelly_discovery_last_scan_timestamp_seconds (gauge) - timestamp of last scan
+  shelly_discovery_scan_errors_total (counter) - total scan errors
+  shelly_discovered_device_info{ip,model,gen,app,mac,discovered_at} (gauge, value=1) - info about discovered devices
 - Switch channel metrics (device,meter):
   shelly_switch_output{device,meter}
   shelly_switch_apower_watts{device,meter}
@@ -168,10 +224,12 @@ Implementation details:
 - Use pydantic v2 for config models and validation.
 - Use PyYAML (or ruamel.yaml) for YAML parsing.
 - Use standard logging with timestamps.
+- Use ipaddress module for CIDR parsing and IP range generation.
 - Provide normalized data models:
   - DeviceReading for per-device fields (up, duration, etc.)
   - ChannelReading(channel_type, channel_index, output, brightness, apower_w, voltage_v, freq_hz, current_a, pf, temp_c, aenergy_wh, ret_aenergy_wh)
   - Drivers convert raw Shelly JSON into ChannelReading objects.
+  - DiscoveredDevice(ip, device_info, discovered_at) for tracking discovered devices.
 
 Project structure (must create all files):
 - pyproject.toml (uv-compatible)
@@ -188,6 +246,7 @@ Project structure (must create all files):
     - dimmer_0110vpm_g3.py
     - registry.py             # driver registry/discovery
   - shelly_client.py          # RPC client + device info/status methods
+  - scanner.py                # network scanning service for auto-discovery
   - metrics.py
   - poller.py
   - web.py
@@ -199,6 +258,7 @@ Project structure (must create all files):
   - one PlugUS target with 1 switch channel
   - one Dimmer0110VPMG3 target with 1 light channel
   - per-target poll interval override and per-target credential override example
+  - discovery configuration example (commented out, showing how to enable auto-discovery)
 - tests/:
   - test_config_load.py
   - test_driver_selection.py
@@ -207,6 +267,7 @@ Project structure (must create all files):
   - test_plugus_parsing.py
   - test_dimmer_parsing.py
   - test_metrics_update.py
+  - test_scanner.py                 # tests for network scanning functionality
   Include JSON fixtures in tests/fixtures/ for deviceinfo + status for each model, including a dimmer status fixture showing light:0.
 
 Docker:
