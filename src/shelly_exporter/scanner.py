@@ -305,13 +305,16 @@ class NetworkScanner:
         self._configured_urls: set[str] = self._get_configured_urls()
 
     def _get_configured_urls(self) -> set[str]:
-        """Get set of URLs/IPs from manually configured targets."""
+        """Get set of URLs/IPs from all targets in the config file.
+
+        All targets in config.yml are considered "configured" for deduplication,
+        regardless of whether they were originally discovered or manually added.
+        """
         urls = set()
         for target in self.config.targets:
-            if not target.discovered:  # Only manually configured targets
-                # Normalize URL to just the IP/hostname
-                url = target.url.replace("http://", "").replace("https://", "").rstrip("/")
-                urls.add(url)
+            # Normalize URL to just the IP/hostname
+            url = target.url.replace("http://", "").replace("https://", "").rstrip("/")
+            urls.add(url)
         return urls
 
     def _is_already_configured(self, ip: str) -> bool:
