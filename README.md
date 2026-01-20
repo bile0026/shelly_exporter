@@ -11,6 +11,7 @@ A production-ready Prometheus exporter for Shelly devices with a modular plugin/
 - Switch and light channel support
 - Automatic driver selection based on device info
 - Network auto-discovery of Shelly devices (CIDR/IP ranges)
+- Automatic configuration reload (hot reload without restart)
 - Exponential backoff on failures
 - Docker support
 
@@ -173,7 +174,24 @@ discovery:
 | `name_template` | "shelly_{ip}_{model}" | Template for device names |
 | `persist_path` | null | Path to save discovered devices (survives restarts) |
 
-Name template variables: `{ip}`, `{model}`, `{gen}`, `{app}`, `{mac}`
+Name template variables: `{ip}`, `{model}`, `{gen}`, `{app}`, `{mac}`, `{id}`
+
+### Configuration Reloading
+
+The exporter automatically watches the configuration file for changes and reloads it without requiring a restart. Changes are detected within seconds and applied immediately.
+
+**What gets reloaded:**
+- Global settings (log_level, poll_interval_seconds, etc.)
+- New targets are added automatically
+- Removed targets stop being polled
+- Updated target settings (poll intervals, credentials, channels) are applied
+- Invalid configurations are rejected (old config continues to be used)
+
+**Behavior:**
+- Config file changes are debounced (waits ~1 second after last change)
+- Invalid YAML or validation errors are logged, old config is retained
+- Metrics continue without interruption during reload
+- Reload events are logged at INFO level
 
 ## Prometheus Metrics
 
@@ -255,6 +273,15 @@ Name template variables: `{ip}`, `{model}`, `{gen}`, `{app}`, `{mac}`
 | `shelly_discovery_last_scan_timestamp_seconds` | - | Timestamp of last scan |
 | `shelly_discovery_scan_errors_total` | - | Total scan errors (counter) |
 | `shelly_discovered_device_info` | ip, model, gen, app, mac, discovered_at | Info about discovered devices (value=1) |
+
+### Configuration Metrics
+
+| Metric | Labels | Description |
+|--------|--------|-------------|
+| `shelly_config_reloads_total` | - | Total successful config reloads (counter) |
+| `shelly_config_reload_errors_total` | - | Total failed config reload attempts (counter) |
+| `shelly_config_last_reload_timestamp_seconds` | - | Timestamp of last successful config reload |
+| `shelly_config_last_reload_status` | - | Status of last reload attempt (1=success, 0=failure) |
 
 ## Running Tests
 
