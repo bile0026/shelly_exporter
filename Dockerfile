@@ -47,6 +47,12 @@ ENV CONFIG_PATH=/config/config.yml
 # Create config directory
 RUN mkdir -p /config
 
+# Create non-root user first
+RUN useradd -r -s /bin/false shelly
+
+# Create data directory for discovered devices (writable by shelly user)
+RUN mkdir -p /app/data && chown -R shelly:shelly /app/data
+
 # Expose metrics port
 EXPOSE 10037
 
@@ -54,8 +60,7 @@ EXPOSE 10037
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:10037/health')" || exit 1
 
-# Run as non-root user
-RUN useradd -r -s /bin/false shelly
+# Switch to non-root user
 USER shelly
 
 # Start application

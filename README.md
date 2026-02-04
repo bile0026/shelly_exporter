@@ -158,7 +158,9 @@ discovery:
   exclude_ips:
     - "10.0.80.1"                      # Gateway
   name_template: "shelly_{ip}_{model}"
-  persist_path: /config/discovered.yml # Persist across restarts
+  persist_path: /app/data/discovered.yml # Persist across restarts
+  # Note: Use /app/data/discovered.yml for writable location (recommended)
+  # Or use /config/discovered.yml if host directory has write permissions for container user
 ```
 
 | Option | Default | Description |
@@ -172,7 +174,7 @@ discovery:
 | `auto_add_credentials` | null | Credentials for discovered devices |
 | `exclude_ips` | [] | IPs to exclude from scanning |
 | `name_template` | "shelly_{ip}_{model}" | Template for device names |
-| `persist_path` | null | Path to save discovered devices (survives restarts) |
+| `persist_path` | null | Path to save discovered devices (survives restarts). Use `/app/data/discovered.yml` for writable location (recommended) or ensure `/config` has write permissions for container user |
 
 Name template variables: `{ip}`, `{model}`, `{gen}`, `{app}`, `{mac}`, `{id}`
 
