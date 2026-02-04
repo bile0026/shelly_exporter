@@ -3,6 +3,7 @@
 .claude
 config/discovered.yml
 config/config.yml
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

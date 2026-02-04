@@ -80,7 +80,9 @@ discovery:
 
   # Path to persist discovered devices (survives container restarts)
   # If not set, discovered devices are only kept in memory
-  persist_path: /config/discovered.yml
+  # Note: Use /app/data/discovered.yml for writable location (recommended)
+  # Or use /config/discovered.yml if host directory has write permissions for container user
+  persist_path: /app/data/discovered.yml
 
 # =============================================================================
 # Target Devices

@@ -8,7 +8,8 @@ services:
     ports:
       - "10037:10037"
     volumes:
-      - ./config:/config
+      - ./config:/config:ro  # Read-only for config files
+      - ./data:/app/data     # Writable for discovered devices
     environment:
       - CONFIG_PATH=/config/config.yml
     healthcheck:
