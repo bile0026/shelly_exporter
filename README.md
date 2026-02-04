@@ -80,18 +80,23 @@ targets:
     channels:
       - type: switch
         index: 0
+        label: "workshop_lights"  # Optional: human-readable label
       - type: switch
         index: 1
+        label: "workshop_outlets"
       - type: switch
         index: 2
+        label: "garage_door_opener"
       - type: switch
         index: 3
+        label: "exterior_lights"
 
   - name: hallway_dimmer
     url: 10.0.80.35
     channels:
       - type: light
         index: 0
+        label: "hallway_dimmer"  # Optional: human-readable label
 ```
 
 ### Configuration Options
@@ -110,12 +115,13 @@ targets:
 
 ### Channel Options
 
-Each channel can have ignore flags to skip specific metrics:
+Each channel can have ignore flags to skip specific metrics and an optional label for identification:
 
 ```yaml
 channels:
   - type: switch
     index: 0
+    label: "workshop_lights"  # Optional: human-readable label for this channel
     ignore_voltage: false
     ignore_current: false
     ignore_active_power: false
@@ -132,11 +138,14 @@ For light channels:
 channels:
   - type: light
     index: 0
+    label: "hallway_dimmer"  # Optional: human-readable label
     ignore_output: false
     ignore_brightness: false
     ignore_active_power: false
     ignore_total_active_energy: false
 ```
+
+**Channel Labels**: The optional `label` field allows you to assign human-readable names to channels (e.g., "workshop_lights", "garage_door_opener"). When set, the label is included as a metric label, making it easier to identify specific loads in Prometheus queries and dashboards. This is especially useful for multi-channel devices like the Pro 4PM.
 
 ### Network Auto-Discovery
 
@@ -243,27 +252,31 @@ The exporter automatically watches the configuration file for changes and reload
 
 | Metric | Labels | Description |
 |--------|--------|-------------|
-| `shelly_switch_output` | device, meter | Switch state (1=on, 0=off) |
-| `shelly_switch_apower_watts` | device, meter | Active power (W) |
-| `shelly_switch_voltage_volts` | device, meter | Voltage (V) |
-| `shelly_switch_frequency_hz` | device, meter | Frequency (Hz) |
-| `shelly_switch_current_amps` | device, meter | Current (A) |
-| `shelly_switch_power_factor` | device, meter | Power factor |
-| `shelly_switch_temperature_c` | device, meter | Temperature (C) |
-| `shelly_switch_aenergy_wh_total` | device, meter | Total active energy (Wh) |
-| `shelly_switch_ret_aenergy_wh_total` | device, meter | Total returned energy (Wh) |
+| `shelly_switch_output` | device, meter, label* | Switch state (1=on, 0=off) |
+| `shelly_switch_apower_watts` | device, meter, label* | Active power (W) |
+| `shelly_switch_voltage_volts` | device, meter, label* | Voltage (V) |
+| `shelly_switch_frequency_hz` | device, meter, label* | Frequency (Hz) |
+| `shelly_switch_current_amps` | device, meter, label* | Current (A) |
+| `shelly_switch_power_factor` | device, meter, label* | Power factor |
+| `shelly_switch_temperature_c` | device, meter, label* | Temperature (C) |
+| `shelly_switch_aenergy_wh_total` | device, meter, label* | Total active energy (Wh) |
+| `shelly_switch_ret_aenergy_wh_total` | device, meter, label* | Total returned energy (Wh) |
+
+\* `label` is optional and only included if configured in the channel config
 
 ### Light Channel Metrics
 
 | Metric | Labels | Description |
 |--------|--------|-------------|
-| `shelly_light_output` | device, channel | Light state (1=on, 0=off) |
-| `shelly_light_brightness_percent` | device, channel | Brightness (0-100%) |
-| `shelly_light_apower_watts` | device, channel | Active power (W) |
-| `shelly_light_aenergy_wh_total` | device, channel | Total active energy (Wh) |
-| `shelly_light_voltage_volts` | device, channel | Voltage (V) |
-| `shelly_light_current_amps` | device, channel | Current (A) |
-| `shelly_light_temperature_c` | device, channel | Temperature (C) |
+| `shelly_light_output` | device, channel, label* | Light state (1=on, 0=off) |
+| `shelly_light_brightness_percent` | device, channel, label* | Brightness (0-100%) |
+| `shelly_light_apower_watts` | device, channel, label* | Active power (W) |
+| `shelly_light_aenergy_wh_total` | device, channel, label* | Total active energy (Wh) |
+| `shelly_light_voltage_volts` | device, channel, label* | Voltage (V) |
+| `shelly_light_current_amps` | device, channel, label* | Current (A) |
+| `shelly_light_temperature_c` | device, channel, label* | Temperature (C) |
+
+\* `label` is optional and only included if configured in the channel config
 
 ### Discovery Metrics
 

@@ -407,6 +407,9 @@ def _update_switch_metrics(
 ) -> None:
     """Update switch channel metrics."""
     labels = {"device": device_name, "meter": str(reading.channel_index)}
+    # Add channel label if provided
+    if channel_config and channel_config.label:
+        labels["label"] = channel_config.label
 
     # Check ignore flags from config
     ignore = channel_config or ChannelConfig()
@@ -446,6 +449,9 @@ def _update_light_metrics(
 ) -> None:
     """Update light channel metrics."""
     labels = {"device": device_name, "channel": str(reading.channel_index)}
+    # Add channel label if provided
+    if channel_config and channel_config.label:
+        labels["label"] = channel_config.label
 
     # Check ignore flags from config
     ignore = channel_config or ChannelConfig()
