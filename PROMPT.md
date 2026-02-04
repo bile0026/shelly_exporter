@@ -130,6 +130,7 @@ targets:
     channels:                          # supports multiple channel types
       - type: switch
         index: 0
+        label: "workshop_lights"      # optional: human-readable label for this channel
         ignore_voltage: false
         ignore_current: false
         ignore_active_power: false
@@ -231,21 +232,21 @@ Prometheus metrics:
   shelly_discovery_last_scan_timestamp_seconds (gauge) - timestamp of last scan
   shelly_discovery_scan_errors_total (counter) - total scan errors
   shelly_discovered_device_info{ip,model,gen,app,mac,discovered_at} (gauge, value=1) - info about discovered devices
-- Switch channel metrics (device,meter):
-  shelly_switch_output{device,meter}
-  shelly_switch_apower_watts{device,meter}
-  shelly_switch_voltage_volts{device,meter}
-  shelly_switch_frequency_hz{device,meter}
-  shelly_switch_current_amps{device,meter}
-  shelly_switch_power_factor{device,meter}
-  shelly_switch_temperature_c{device,meter}
-  shelly_switch_aenergy_wh_total{device,meter}
-  shelly_switch_ret_aenergy_wh_total{device,meter}
-- Light channel metrics (device,channel):
-  shelly_light_output{device,channel}
-  shelly_light_brightness_percent{device,channel}       # if available
-  shelly_light_apower_watts{device,channel}             # if available
-  shelly_light_aenergy_wh_total{device,channel}         # if available
+- Switch channel metrics (device,meter[,label]):
+  shelly_switch_output{device,meter,label}  # label is optional, added if configured
+  shelly_switch_apower_watts{device,meter,label}
+  shelly_switch_voltage_volts{device,meter,label}
+  shelly_switch_frequency_hz{device,meter,label}
+  shelly_switch_current_amps{device,meter,label}
+  shelly_switch_power_factor{device,meter,label}
+  shelly_switch_temperature_c{device,meter,label}
+  shelly_switch_aenergy_wh_total{device,meter,label}
+  shelly_switch_ret_aenergy_wh_total{device,meter,label}
+- Light channel metrics (device,channel[,label]):
+  shelly_light_output{device,channel,label}  # label is optional, added if configured
+  shelly_light_brightness_percent{device,channel,label}       # if available
+  shelly_light_apower_watts{device,channel,label}             # if available
+  shelly_light_aenergy_wh_total{device,channel,label}         # if available
 
 Implementation details:
 - Use httpx.AsyncClient with keepalive pooling.

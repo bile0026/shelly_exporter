@@ -143,55 +143,55 @@ shelly_input_state = Gauge(
 shelly_switch_output = Gauge(
     "shelly_switch_output",
     "Switch output state (1=on, 0=off)",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_apower = Gauge(
     "shelly_switch_apower_watts",
     "Active power in watts",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_voltage = Gauge(
     "shelly_switch_voltage_volts",
     "Voltage in volts",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_frequency = Gauge(
     "shelly_switch_frequency_hz",
     "Frequency in Hz",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_current = Gauge(
     "shelly_switch_current_amps",
     "Current in amps",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_power_factor = Gauge(
     "shelly_switch_power_factor",
     "Power factor (0-1)",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_temperature = Gauge(
     "shelly_switch_temperature_c",
     "Temperature in Celsius",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_aenergy = Gauge(
     "shelly_switch_aenergy_wh_total",
     "Total active energy in Wh",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 shelly_switch_ret_aenergy = Gauge(
     "shelly_switch_ret_aenergy_wh_total",
     "Total returned active energy in Wh",
-    ["device", "meter"],
+    ["device", "meter", "label"],
 )
 
 # =============================================================================
@@ -257,43 +257,43 @@ shelly_config_last_reload_status = Gauge(
 shelly_light_output = Gauge(
     "shelly_light_output",
     "Light output state (1=on, 0=off)",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 shelly_light_brightness = Gauge(
     "shelly_light_brightness_percent",
     "Light brightness percentage (0-100)",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 shelly_light_apower = Gauge(
     "shelly_light_apower_watts",
     "Light active power in watts",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 shelly_light_aenergy = Gauge(
     "shelly_light_aenergy_wh_total",
     "Light total active energy in Wh",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 shelly_light_voltage = Gauge(
     "shelly_light_voltage_volts",
     "Light voltage in volts",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 shelly_light_current = Gauge(
     "shelly_light_current_amps",
     "Light current in amps",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 shelly_light_temperature = Gauge(
     "shelly_light_temperature_c",
     "Light temperature in Celsius",
-    ["device", "channel"],
+    ["device", "channel", "label"],
 )
 
 
@@ -406,7 +406,11 @@ def _update_switch_metrics(
     channel_config: ChannelConfig | None,
 ) -> None:
     """Update switch channel metrics."""
-    labels = {"device": device_name, "meter": str(reading.channel_index)}
+    labels = {
+        "device": device_name,
+        "meter": str(reading.channel_index),
+        "label": channel_config.label if channel_config and channel_config.label else "",
+    }
 
     # Check ignore flags from config
     ignore = channel_config or ChannelConfig()
@@ -445,7 +449,11 @@ def _update_light_metrics(
     channel_config: ChannelConfig | None,
 ) -> None:
     """Update light channel metrics."""
-    labels = {"device": device_name, "channel": str(reading.channel_index)}
+    labels = {
+        "device": device_name,
+        "channel": str(reading.channel_index),
+        "label": channel_config.label if channel_config and channel_config.label else "",
+    }
 
     # Check ignore flags from config
     ignore = channel_config or ChannelConfig()

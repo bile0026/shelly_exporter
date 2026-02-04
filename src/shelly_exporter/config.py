@@ -34,6 +34,7 @@ class ChannelConfig(BaseModel):
 
     type: str = "switch"
     index: int = 0
+    label: str | None = None  # Optional human-readable label for the channel (e.g., "workshop_lights", "garage_door")
     ignore_voltage: bool = False
     ignore_current: bool = False
     ignore_active_power: bool = False

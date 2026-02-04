@@ -89,13 +89,14 @@ discovery:
 # =============================================================================
 # List of Shelly devices to poll
 targets:
-  # Shelly Pro 4PM Gen2 - 4 switch channels
+  # Shelly Pro 4PM Gen2 - 4 switch channels with labels
   - name: workshop_power
     url: 10.0.80.20
     poll_interval_seconds: 5  # Override global interval
     channels:
       - type: switch
         index: 0
+        label: "workshop_lights"  # Optional: human-readable label for this channel
         ignore_voltage: false
         ignore_current: false
         ignore_active_power: false
@@ -107,10 +108,13 @@ targets:
         ignore_output: false
       - type: switch
         index: 1
+        label: "workshop_outlets"
       - type: switch
         index: 2
+        label: "garage_door_opener"
       - type: switch
         index: 3
+        label: "exterior_lights"
 
   # Shelly 1PM Gen4 - 1 switch channel with per-target credentials
   - name: garage_light
