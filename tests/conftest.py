@@ -32,6 +32,18 @@ def pro4pm_status() -> dict[str, Any]:
 
 
 @pytest.fixture
+def pro2pm_deviceinfo() -> dict[str, Any]:
+    """Pro 2PM Gen2 device info fixture."""
+    return load_fixture("pro2pm_gen2_deviceinfo.json")
+
+
+@pytest.fixture
+def pro2pm_status() -> dict[str, Any]:
+    """Pro 2PM Gen2 status fixture."""
+    return load_fixture("pro2pm_gen2_status.json")
+
+
+@pytest.fixture
 def s1pm_deviceinfo() -> dict[str, Any]:
     """1PM Gen4 device info fixture."""
     return load_fixture("s1pm_gen4_deviceinfo.json")

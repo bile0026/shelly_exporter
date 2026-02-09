@@ -9,6 +9,7 @@ import pytest
 from shelly_exporter.drivers.base import DeviceDriver
 from shelly_exporter.drivers.dimmer_0110vpm_g3 import Dimmer0110VPMG3Driver
 from shelly_exporter.drivers.plugus_gen2 import PlugUSGen2Driver
+from shelly_exporter.drivers.pro2pm_gen2 import Pro2PMGen2Driver
 from shelly_exporter.drivers.pro4pm_gen2 import Pro4PMGen2Driver
 from shelly_exporter.drivers.registry import DriverRegistry, get_registry
 from shelly_exporter.drivers.s1pm_gen4 import Shelly1PMGen4Driver
@@ -26,6 +27,7 @@ class TestDriverRegistry:
         assert len(drivers) >= 4
 
         driver_ids = [d.driver_id for d in drivers]
+        assert "pro2pm_gen2" in driver_ids
         assert "pro4pm_gen2" in driver_ids
         assert "s1pm_gen4" in driver_ids
         assert "plugus_gen2" in driver_ids
@@ -42,6 +44,15 @@ class TestDriverRegistry:
 
 class TestDriverSelection:
     """Tests for selecting the best driver for a device."""
+
+    def test_select_pro2pm_driver(self, pro2pm_deviceinfo: dict[str, Any]) -> None:
+        """Test Pro 2PM driver selection."""
+        registry = get_registry()
+        driver = registry.get_best_driver(pro2pm_deviceinfo)
+
+        assert driver is not None
+        assert driver.driver_id == "pro2pm_gen2"
+        assert isinstance(driver, Pro2PMGen2Driver)
 
     def test_select_pro4pm_driver(self, pro4pm_deviceinfo: dict[str, Any]) -> None:
         """Test Pro 4PM driver selection."""
@@ -127,6 +138,15 @@ class TestDriverScoring:
 
 class TestSupportedChannels:
     """Tests for supported channel detection."""
+
+    def test_pro2pm_channels(self) -> None:
+        """Test Pro 2PM supported channels."""
+        driver = Pro2PMGen2Driver()
+        channels = driver.supported_channels({})
+
+        assert "switch" in channels
+        assert channels["switch"] == {0, 1}
+        assert "light" not in channels
 
     def test_pro4pm_channels(self) -> None:
         """Test Pro 4PM supported channels."""

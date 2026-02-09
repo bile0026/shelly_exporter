@@ -11,6 +11,7 @@ from shelly_exporter.drivers.blugw_gen3 import BluGwGen3Driver
 from shelly_exporter.drivers.dimmer_0110vpm_g3 import Dimmer0110VPMG3Driver
 from shelly_exporter.drivers.plugus_gen2 import PlugUSGen2Driver
 from shelly_exporter.drivers.pluswalldimmer_gen2 import PlusWallDimmerGen2Driver
+from shelly_exporter.drivers.pro2pm_gen2 import Pro2PMGen2Driver
 from shelly_exporter.drivers.pro4pm_gen2 import Pro4PMGen2Driver
 from shelly_exporter.drivers.s1pm_gen4 import Shelly1PMGen4Driver
 
@@ -80,6 +81,7 @@ def get_registry() -> DriverRegistry:
     if _registry is None:
         _registry = DriverRegistry()
         # Register all built-in drivers
+        _registry.register(Pro2PMGen2Driver())
         _registry.register(Pro4PMGen2Driver())
         _registry.register(Shelly1PMGen4Driver())
         _registry.register(PlugUSGen2Driver())

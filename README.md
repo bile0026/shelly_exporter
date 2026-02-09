@@ -19,6 +19,7 @@ A production-ready Prometheus exporter for Shelly devices with a modular plugin/
 
 | Device | Gen | App | Driver |
 |--------|-----|-----|--------|
+| Shelly Pro 2PM | 2 | Pro2PM | `pro2pm_gen2` |
 | Shelly Pro 4PM | 2 | Pro4PM | `pro4pm_gen2` |
 | Shelly 1PM | 4 | S1PMG4 | `s1pm_gen4` |
 | Shelly Plug US | 2 | PlugUS | `plugus_gen2` |
