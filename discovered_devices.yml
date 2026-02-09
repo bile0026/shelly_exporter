@@ -1,0 +1,120 @@
+# Discovered devices (extracted from metrics)
+
+  - name: shelly_10_0_80_40_3958_sndm_0013us
+    url: 10.0.80.40
+    discovered: true
+    channels:
+    - type: light
+      index: 0
+
+  - name: shelly_10_0_80_33_812c_sndm_00100ww
+    url: 10.0.80.33
+    discovered: true
+    channels:
+    - type: light
+      index: 0
+
+  - name: shelly_10_0_80_53_021c_spsw_204pe16eu
+    url: 10.0.80.53
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_54_1058_spsw_204pe16eu
+    url: 10.0.80.54
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_55_021c_spsw_204pe16eu
+    url: 10.0.80.55
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_56_3884_spsw_204pe16eu
+    url: 10.0.80.56
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_57_1058_spsw_204pe16eu
+    url: 10.0.80.57
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_58_d574_spsw_204pe16eu
+    url: 10.0.80.58
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_59_3884_spsw_204pe16eu
+    url: 10.0.80.59
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
+  - name: shelly_10_0_80_60_d574_spsw_204pe16eu
+    url: 10.0.80.60
+    discovered: true
+    channels:
+    - type: switch
+      index: 0
+    - type: switch
+      index: 1
+    - type: switch
+      index: 2
+    - type: switch
+      index: 3
+
